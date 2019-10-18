@@ -1,5 +1,7 @@
 package edu.westga.cs3270.cliffwalking.controller;
 
+import java.util.ArrayList;
+
 public class QLearning {
 	
     private final double alpha = 0.1; // Learning rate
@@ -18,6 +20,10 @@ public class QLearning {
     private int[][] R;       // Reward lookup
     private double[][] Q;    // Q learning
     
-    
+    public void changeRange(ArrayList<Integer> values, int vmin, int vmax) {
+    	vmin = 0;
+    	vmax = 1;
+    	//int startZero = 
+    }
 
 }
