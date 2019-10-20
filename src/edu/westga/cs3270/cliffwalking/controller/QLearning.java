@@ -18,6 +18,10 @@ public class QLearning {
     private int[][] R;       // Reward lookup
     private double[][] Q;    // Q learning
     
+    public QLearning() {
+    	
+    }
+    
     
 
 }
