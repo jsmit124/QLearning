@@ -18,7 +18,15 @@ public class QLearning {
     private int[][] R;       // Reward lookup
     private double[][] Q;    // Q learning
     
+    String[] actions = {"up", "down", "left", "right"};
+    boolean restart = false;
+    
+    
     public QLearning() {
+    	
+    }
+    
+    public void setupWorld() {
     	
     }
     

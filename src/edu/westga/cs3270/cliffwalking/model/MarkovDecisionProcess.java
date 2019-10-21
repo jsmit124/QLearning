@@ -1,5 +1,8 @@
 package edu.westga.cs3270.cliffwalking.model;
 
+import edu.westga.cs3270.cliffwalking.interfaces.State;
+import edu.westga.cs3270.cliffwalking.interfaces.World;
+
 public class MarkovDecisionProcess {
 	
 	private final World world; 

@@ -1,5 +1,7 @@
 package edu.westga.cs3270.cliffwalking.model;
 
+import edu.westga.cs3270.cliffwalking.interfaces.State;
+
 public class SuccessorState implements Comparable<SuccessorState> {
 		
 		private final State state;

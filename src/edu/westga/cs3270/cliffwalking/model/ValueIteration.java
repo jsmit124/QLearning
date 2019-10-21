@@ -1,5 +1,9 @@
 package edu.westga.cs3270.cliffwalking.model;
 
+import edu.westga.cs3270.cliffwalking.interfaces.Action;
+import edu.westga.cs3270.cliffwalking.interfaces.State;
+import edu.westga.cs3270.cliffwalking.interfaces.World;
+
 public class ValueIteration extends MarkovDecisionProcess {
 
 	private double discountFactor;

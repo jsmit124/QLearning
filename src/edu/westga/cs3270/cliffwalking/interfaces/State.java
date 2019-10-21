@@ -1,4 +1,4 @@
-package edu.westga.cs3270.cliffwalking.model;
+package edu.westga.cs3270.cliffwalking.interfaces;
 
 public interface State {
 	
