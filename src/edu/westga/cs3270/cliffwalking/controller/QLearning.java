@@ -1,7 +1,7 @@
 package edu.westga.cs3270.cliffwalking.controller;
 
 //Sources cited: https://github.com/cvhu/CliffWalking
-
+	
 import java.util.*;
 import edu.westga.cs3270.cliffwalking.model.State;
 
