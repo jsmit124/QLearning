@@ -360,7 +360,7 @@ public class CliffWalking {
 		HashMap<String, HashMap<String, Double>> qQL = cliffWalker.QLearning(0.01, 0.5, 1.0, 1000);		
 
 		cliffWalker.printPolicy(qS);
-		cliffWalker.printPolicy(qQL);	
+		cliffWalker.printPolicy(qQL);
 	}
 
 }
