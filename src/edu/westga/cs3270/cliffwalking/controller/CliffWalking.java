@@ -58,7 +58,7 @@ class CliffState {
 	}
 
 	
-	public void right() {
+	public void right() { 
 		if (this.x < (this.width - 1)) {
 			this.x++;
 		}		
