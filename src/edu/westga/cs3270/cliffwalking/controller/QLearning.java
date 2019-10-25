@@ -30,51 +30,74 @@ public class QLearning {
 	}
 
 	//handles the greedy policy
-	private String greedyPolicy(HashMap<String, Double> qa, double eta) {
-		int maxCount = 0;
-		int totalCount = 0;
-		Double maxValue = Double.NEGATIVE_INFINITY;
+	private String greedyPolicy(HashMap<String, Double> qa, double epsilon) {
 		Random rand = new Random();
-		LinkedList<String> actions = new LinkedList<String>();
-		LinkedList<Double> probabilities = new LinkedList<Double>();
+		double explorationValue = rand.nextDouble();
+		String move = "";
+		double bestQValue = this.getMaxQValue(qa);
 		
-		for (String action : qa.keySet()) {
-			totalCount++;
-			Double currValue = qa.get(action);
-			int compare = currValue.compareTo(maxValue);
-			if (compare > 0) {
-				maxValue = currValue;
-				maxCount = 1;
-			} else if (compare == 0) {
-				maxCount++;
+		//finds best move
+		for (String currMove : qa.keySet()) {
+			if (qa.get(currMove) == bestQValue) {
+				move = currMove;
 			}
 		}
 		
-		Double oldProbability = 0.0;
-		Double exploreProbability = eta / totalCount;
-		Double greedyProbability = (1.0 - eta) / maxCount + exploreProbability;
-		
-		for (String action : qa.keySet()) {
-			Double currValue = qa.get(action);
-			if (currValue.compareTo(maxValue) == 0) {
-				oldProbability += greedyProbability;
-			} else {
-				oldProbability += exploreProbability;
-			}
-			
-			actions.add(action);
-			probabilities.add(oldProbability);
+		//if random choice is chosen, make copy of existing moves/qvalues,
+		//then choose random number and return the random move
+		if (explorationValue < epsilon) {
+			HashMap<String, Double> newQA = new HashMap<String, Double>(qa);
+			newQA.remove(move);
+			int randomChoice = rand.nextInt(3);
+			Object[] moves = newQA.keySet().toArray();
+			move = (String) moves[randomChoice];
 		}
 		
-		double random = rand.nextDouble();
-		
-		for (int i = 0; i < totalCount; i++) {
-			if (random < probabilities.get(i)) {
-				return actions.get(i);
-			}
-		}
-		
-		return actions.get(totalCount - 1);
+		return move;
+//		int maxCount = 0;
+//		int totalCount = 0;
+//		Double maxValue = Double.NEGATIVE_INFINITY;
+//		Random rand = new Random();
+//		LinkedList<String> actions = new LinkedList<String>();
+//		LinkedList<Double> probabilities = new LinkedList<Double>();
+//		
+//		for (String action : qa.keySet()) {
+//			totalCount++;
+//			Double currValue = qa.get(action);
+//			int compare = currValue.compareTo(maxValue);
+//			if (compare > 0) {
+//				maxValue = currValue;
+//				maxCount = 1;
+//			} else if (compare == 0) {
+//				maxCount++;
+//			}
+//		}
+//		
+//		Double oldProbability = 0.0;
+//		Double exploreProbability = eta / totalCount;
+//		Double greedyProbability = (1.0 - eta) / maxCount + exploreProbability;
+//		
+//		for (String action : qa.keySet()) {
+//			Double currValue = qa.get(action);
+//			if (currValue.compareTo(maxValue) == 0) {
+//				oldProbability += greedyProbability;
+//			} else {
+//				oldProbability += exploreProbability;
+//			}
+//			
+//			actions.add(action);
+//			probabilities.add(oldProbability);
+//		}
+//		
+//		double random = rand.nextDouble();
+//		
+//		for (int i = 0; i < totalCount; i++) {
+//			if (random < probabilities.get(i)) {
+//				return actions.get(i);
+//			}
+//		}
+//		
+//		return actions.get(totalCount - 1);
 	}
 
 	/**
@@ -114,28 +137,30 @@ public class QLearning {
 	 * @return
 	 * 		the current qValues of the states at the end of the number of iterations
 	 */
-	public HashMap<String, HashMap<String, Double>> qLearning(double epsilon, double alpha, double gamma, int amountOfIterations) {		
+	public HashMap<String, HashMap<String, Double>> qLearning(double epsilon, double alpha, double gamma, int amountOfIterations, String fileName) {		
 		HashMap<String, HashMap<String, Double>> qValues = new HashMap<String, HashMap<String, Double>>();
-		State cliffState = new State(this.width, this.length);
+		State cliffState = new State(this.width, this.length, fileName);
 
 		for (int i = 0; i < this.width; i++) {
 			for (int j = 0; j < this.length; j++) {
 				HashMap<String, Double> moves = new HashMap<String, Double>();
-				moves.put("down", 0.5);
-				moves.put("up", 0.5);
-				moves.put("right", 0.5);
-				moves.put("left", 0.5);
+				moves.put("up", 0.0);
+				moves.put("down", 0.0);
+				moves.put("right", 0.0);
+				moves.put("left", 0.0);
 				qValues.put(String.format("(%d, %d)", i, j), moves);
 			}
 		}
 
 		for (int i = 0; i < amountOfIterations; i++) {
 			cliffState.startNewEpisode();
-			String state = cliffState.getState();	
+			String state = cliffState.getState();
+			cliffState.reward();
 			
-			while (!cliffState.terminate()) {
+			while (!cliffState.terminate(cliffState.getReward())) {
 				String action = this.greedyPolicy(qValues.get(state), epsilon);
 				cliffState.action(action);
+
 				int reward = cliffState.getReward();
 				String newState = cliffState.getState();				
 				HashMap<String, Double> qa = qValues.get(state);
@@ -144,7 +169,7 @@ public class QLearning {
 				qa.put(action, currQValue);
 				qValues.put(state, qa);
 				state = newState;
-				System.out.printf("%d: %s-%s %f" + System.lineSeparator(), i, state, action, currQValue);
+				//System.out.printf("%d: %s-%s %f" + System.lineSeparator(), i, state, action, currQValue);
 			}			
 		}
 		return qValues;
@@ -156,12 +181,11 @@ public class QLearning {
 	 * @param qValues
 	 * 		map containing the qValues
 	 */
-	public void formatEpisodePolicy(HashMap<String, HashMap<String, Double>> qValues){
+	public void formatEpisodePolicy(HashMap<String, HashMap<String, Double>> qValues, String fileName) {
 		HashMap<String, String> trajectory = new HashMap<String, String>();
-		State currentState = new State(this.width, this.length);
-		currentState.startNewEpisode();
+		State currentState = new State(this.width, this.length, fileName);
 		
-		while (!currentState.terminate()) {
+		while (!currentState.terminate(currentState.getReward())) {
 			String state = currentState.getState();
 			String action = this.greedyPolicy(qValues.get(state), 0.0);
 			trajectory.put(state, action.substring(0, 1));
@@ -202,13 +226,15 @@ public class QLearning {
 	public static void main(String[] args) {
 		QLearning qLearner = new QLearning(12, 4);
 		
-		double alpha = 0.1;
+		double alpha = 0.5;
 		double gamma = 0.9;
 		double epsilon = 0.1;
 		
-		HashMap<String, HashMap<String, Double>> output = qLearner.qLearning(epsilon, alpha, gamma, 1000);		
-
-		qLearner.formatEpisodePolicy(output);
+		HashMap<String, HashMap<String, Double>> output1 = qLearner.qLearning(epsilon, alpha, gamma, 1000, "CliffWalking");		
+		qLearner.formatEpisodePolicy(output1, "CliffWalking");
+	
+		HashMap<String, HashMap<String, Double>> output2 = qLearner.qLearning(epsilon, alpha, gamma, 1000, "Homework5");
+		qLearner.formatEpisodePolicy(output2, "Homework5");
 	}
 
 }

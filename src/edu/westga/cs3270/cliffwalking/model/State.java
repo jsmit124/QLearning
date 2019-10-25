@@ -1,5 +1,9 @@
 package edu.westga.cs3270.cliffwalking.model;
 
+import java.util.HashMap;
+
+import edu.westga.cs3270.cliffwalking.io.Parser;
+
 /**
  * Stores information for the current state in Cliff Walking
  * 
@@ -13,6 +17,7 @@ public class State {
 	private int length;
 	private int width;
 	private int reward;
+	private HashMap<String, Integer> rewardList;
 	
 	/**
 	 * Constructs a cliff state object
@@ -22,10 +27,13 @@ public class State {
 	 * @param length
 	 * 		the length of the world
 	 */
-	public State(int width, int length) {
+	public State(int width, int length, String fileName) {
 		this.startNewEpisode();
 		this.width = width;
 		this.length = length;
+		this.reward = -1;
+		Parser parser = new Parser(fileName);
+		this.rewardList = parser.parseWorldRewards();
 	}
 
 	/**
@@ -115,12 +123,8 @@ public class State {
 	 * else, reward is -1
 	 */
 	public void reward() {
-		if ((this.y == 0) && (this.x > 0) && (this.x < (this.width - 1))) {
-			this.startNewEpisode();
-			this.reward = -100;
-		} else {
-			this.reward = -1;
-		}
+		String state = this.getState();
+		this.reward = this.rewardList.get(state);
 	}
 
 	/**
@@ -139,8 +143,8 @@ public class State {
 	 * @return
 	 * 		True if x > 0 && y == 0, false otherwise
 	 */
-	public boolean terminate() {
-		return (this.x > 0 && (this.y == 0));
+	public boolean terminate(int reward) {
+		return reward == 0 || reward == -100;
 	}
 
 	/**
