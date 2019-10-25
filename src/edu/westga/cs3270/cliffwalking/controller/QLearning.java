@@ -9,7 +9,7 @@ import edu.westga.cs3270.cliffwalking.model.State;
  * Stores controlling information for the Cliff Walking Q-Learning exercise
  * 
  * @author jsmit124
- * @version a lot
+ * @version so many
  *
  */
 public class QLearning {	
@@ -29,24 +29,24 @@ public class QLearning {
 		this.length = length;
 	}
 
-	//handles the greedy policy
-	private String greedyPolicy(HashMap<String, Double> qa, double epsilon) {
+	//handles the greedy/exploration policy
+	private String greedyPolicy(HashMap<String, Double> movesAndQValues, double epsilon) {
 		Random rand = new Random();
 		double explorationValue = rand.nextDouble();
 		String move = "";
-		double bestQValue = this.getMaxQValue(qa);
+		double bestQValue = this.getMaxQValue(movesAndQValues);
 		
-		//finds best move
-		for (String currMove : qa.keySet()) {
-			if (qa.get(currMove) == bestQValue) {
+		//finds best move and returns it if exploration not chosen
+		for (String currMove : movesAndQValues.keySet()) {
+			if (movesAndQValues.get(currMove) == bestQValue) {
 				move = currMove;
 			}
 		}
 		
-		//if random choice is chosen, make copy of existing moves/qvalues,
+		//if exploration is chosen, make copy of existing moves/qvalues,
 		//then choose random number and return the random move
 		if (explorationValue < epsilon) {
-			HashMap<String, Double> newQA = new HashMap<String, Double>(qa);
+			HashMap<String, Double> newQA = new HashMap<String, Double>(movesAndQValues);
 			newQA.remove(move);
 			int randomChoice = rand.nextInt(3);
 			Object[] moves = newQA.keySet().toArray();
@@ -54,66 +54,22 @@ public class QLearning {
 		}
 		
 		return move;
-//		int maxCount = 0;
-//		int totalCount = 0;
-//		Double maxValue = Double.NEGATIVE_INFINITY;
-//		Random rand = new Random();
-//		LinkedList<String> actions = new LinkedList<String>();
-//		LinkedList<Double> probabilities = new LinkedList<Double>();
-//		
-//		for (String action : qa.keySet()) {
-//			totalCount++;
-//			Double currValue = qa.get(action);
-//			int compare = currValue.compareTo(maxValue);
-//			if (compare > 0) {
-//				maxValue = currValue;
-//				maxCount = 1;
-//			} else if (compare == 0) {
-//				maxCount++;
-//			}
-//		}
-//		
-//		Double oldProbability = 0.0;
-//		Double exploreProbability = eta / totalCount;
-//		Double greedyProbability = (1.0 - eta) / maxCount + exploreProbability;
-//		
-//		for (String action : qa.keySet()) {
-//			Double currValue = qa.get(action);
-//			if (currValue.compareTo(maxValue) == 0) {
-//				oldProbability += greedyProbability;
-//			} else {
-//				oldProbability += exploreProbability;
-//			}
-//			
-//			actions.add(action);
-//			probabilities.add(oldProbability);
-//		}
-//		
-//		double random = rand.nextDouble();
-//		
-//		for (int i = 0; i < totalCount; i++) {
-//			if (random < probabilities.get(i)) {
-//				return actions.get(i);
-//			}
-//		}
-//		
-//		return actions.get(totalCount - 1);
 	}
 
 	/**
 	 * Compares two q values and returns the maximum of the two
 	 * 
-	 * @param qa
-	 * 		the current q value
+	 * @param movesAndQValues
+	 * 		the current move direction, q value pair
 	 * 
 	 * @return
 	 * 		the maximum q value
 	 */
-	public Double getMaxQValue(HashMap<String, Double> qa) {
+	public Double getMaxQValue(HashMap<String, Double> movesAndQValues) {
 		Double maxValue = Double.NEGATIVE_INFINITY;
 		
-		for (String action : qa.keySet()) {
-			Double currValue = qa.get(action);
+		for (String action : movesAndQValues.keySet()) {
+			Double currValue = movesAndQValues.get(action);
 			int compare = currValue.compareTo(maxValue);
 			if (compare > 0) {
 				maxValue = currValue;
@@ -179,7 +135,7 @@ public class QLearning {
 	 * Prints the policy in format of width x length
 	 * 
 	 * @param qValues
-	 * 		map containing the qValues
+	 * 		map containing the qValues in form of key=state, value=direction,qvalue
 	 */
 	public void formatEpisodePolicy(HashMap<String, HashMap<String, Double>> qValues, String fileName) {
 		HashMap<String, String> trajectory = new HashMap<String, String>();

@@ -8,7 +8,7 @@ import edu.westga.cs3270.cliffwalking.io.Parser;
  * Stores information for the current state in Cliff Walking
  * 
  * @author jsmit124
- * @version a lot
+ * @version so many
  *
  */
 public class State {
@@ -117,10 +117,8 @@ public class State {
 	/**
 	 * Defines the rewards of each state
 	 * 
-	 * If y == 0 and x > 0, but not greater than this.width - 1, then you have reached the cliff
-	 * 	and will have reward of -100
-	 * 
-	 * else, reward is -1
+	 * Gets current reward for the state from the list of rewards and sets this.reward to
+	 * the current state's reward
 	 */
 	public void reward() {
 		String state = this.getState();
@@ -141,7 +139,7 @@ public class State {
 	 * Terminates the episode when player has reached a goal state
 	 * 
 	 * @return
-	 * 		True if x > 0 && y == 0, false otherwise
+	 * 		True if reward == 0 (goal found) || reward == -100 (death), false otherwise
 	 */
 	public boolean terminate(int reward) {
 		return reward == 0 || reward == -100;
