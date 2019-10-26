@@ -142,7 +142,7 @@ public class State {
 	 * 		True if reward == 0 (goal found) || reward == -100 (death), false otherwise
 	 */
 	public boolean terminate(int reward) {
-		return reward == 0 || reward == -100;
+		return reward == 0 || reward <= -100;
 	}
 
 	/**

@@ -46,10 +46,8 @@ public class QLearning {
 		//if exploration is chosen, make copy of existing moves/qvalues,
 		//then choose random number and return the random move
 		if (explorationValue < epsilon) {
-			HashMap<String, Double> newQA = new HashMap<String, Double>(movesAndQValues);
-			newQA.remove(move);
-			int randomChoice = rand.nextInt(3);
-			Object[] moves = newQA.keySet().toArray();
+			int randomChoice = rand.nextInt(4);
+			Object[] moves = movesAndQValues.keySet().toArray();
 			move = (String) moves[randomChoice];
 		}
 		
@@ -100,10 +98,10 @@ public class QLearning {
 		for (int i = 0; i < this.width; i++) {
 			for (int j = 0; j < this.length; j++) {
 				HashMap<String, Double> moves = new HashMap<String, Double>();
-				moves.put("up", 0.0);
-				moves.put("down", 0.0);
-				moves.put("right", 0.0);
-				moves.put("left", 0.0);
+				moves.put("right", epsilon);
+				moves.put("left", epsilon);
+				moves.put("up", epsilon);
+				moves.put("down", epsilon);
 				qValues.put(String.format("(%d, %d)", i, j), moves);
 			}
 		}
@@ -112,20 +110,23 @@ public class QLearning {
 			cliffState.startNewEpisode();
 			String state = cliffState.getState();
 			cliffState.reward();
-			
-			while (!cliffState.terminate(cliffState.getReward())) {
+			int count = 0;
+			while (!cliffState.terminate(cliffState.getReward()) || count < 1) {
 				String action = this.greedyPolicy(qValues.get(state), epsilon);
 				cliffState.action(action);
 
 				int reward = cliffState.getReward();
 				String newState = cliffState.getState();				
-				HashMap<String, Double> qa = qValues.get(state);
+				HashMap<String, Double> qForAction = qValues.get(state);
 				
-				Double currQValue = qa.get(action) + alpha * (reward + gamma * (this.getMaxQValue(qValues.get(newState))) - qa.get(action));
-				qa.put(action, currQValue);
-				qValues.put(state, qa);
+				Double currQValue = qForAction.get(action) + alpha * (reward + gamma * (this.getMaxQValue(qValues.get(newState))) - qForAction.get(action));
+				qForAction.put(action, currQValue);
+				qValues.put(state, qForAction);
 				state = newState;
-				//System.out.printf("%d: %s-%s %f" + System.lineSeparator(), i, state, action, currQValue);
+				
+				//UNCOMMENT HERE FOR PRINT STATEMENTS OF EACH ACTION
+				System.out.printf("%d: %s-%s %f" + System.lineSeparator(), i, state, action, currQValue);
+				count++;
 			}			
 		}
 		return qValues;
@@ -182,14 +183,16 @@ public class QLearning {
 	public static void main(String[] args) {
 		QLearning qLearner = new QLearning(12, 4);
 		
-		double alpha = 0.5;
-		double gamma = 0.9;
+		double alpha = 0.9;
+		double gamma = 0.1;
 		double epsilon = 0.1;
 		
-		HashMap<String, HashMap<String, Double>> output1 = qLearner.qLearning(epsilon, alpha, gamma, 1000, "CliffWalking");		
-		qLearner.formatEpisodePolicy(output1, "CliffWalking");
+		//UNCOMMENT HERE FOR CLIFFWALKING WORLD
+		//HashMap<String, HashMap<String, Double>> output1 = qLearner.qLearning(epsilon, alpha, gamma, 100, "CliffWalking");		
+		//qLearner.formatEpisodePolicy(output1, "CliffWalking");
 	
-		HashMap<String, HashMap<String, Double>> output2 = qLearner.qLearning(epsilon, alpha, gamma, 1000, "Homework5");
+		//UNCOMMENT HERE FOR HOMEWORK 5 QUESTION 6 WORLD
+		HashMap<String, HashMap<String, Double>> output2 = qLearner.qLearning(epsilon, alpha, gamma, 150, "Homework5");
 		qLearner.formatEpisodePolicy(output2, "Homework5");
 	}
 
